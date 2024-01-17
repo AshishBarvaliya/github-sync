@@ -1,0 +1,77 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-01-10 13:54:43.581310",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "connect_the_github_repository_section",
+  "github_login",
+  "github_user",
+  "repository",
+  "column_break_hocf",
+  "logout"
+ ],
+ "fields": [
+  {
+   "fieldname": "connect_the_github_repository_section",
+   "fieldtype": "Section Break",
+   "label": "Connect the Github Repository"
+  },
+  {
+   "fieldname": "github_login",
+   "fieldtype": "Button",
+   "label": "Github Login"
+  },
+  {
+   "depends_on": "eval:doc.github_user",
+   "fieldname": "repository",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Repository",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.github_user",
+   "fieldname": "github_user",
+   "fieldtype": "Data",
+   "label": "Github User",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.github_user",
+   "fieldname": "logout",
+   "fieldtype": "Button",
+   "label": "Logout"
+  },
+  {
+   "fieldname": "column_break_hocf",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-01-16 21:37:21.828594",
+ "modified_by": "Administrator",
+ "module": "Github Sync",
+ "name": "Github Connection",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
