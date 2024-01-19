@@ -9,8 +9,11 @@
   "github_login",
   "github_user",
   "repository",
+  "project",
+  "github_access_token",
+  "tasks_naming_series",
   "column_break_hocf",
-  "logout"
+  "github_logout"
  ],
  "fields": [
   {
@@ -35,24 +38,50 @@
    "depends_on": "eval:doc.github_user",
    "fieldname": "github_user",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Github User",
    "read_only": 1,
    "reqd": 1
   },
   {
+   "fieldname": "column_break_hocf",
+   "fieldtype": "Column Break"
+  },
+  {
    "depends_on": "eval:doc.github_user",
-   "fieldname": "logout",
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project",
+   "options": "Project",
+   "reqd": 1
+  },
+  {
+   "default": "NULL",
+   "fieldname": "github_access_token",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Github Access Token",
+   "no_copy": 1,
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.github_user",
+   "fieldname": "github_logout",
    "fieldtype": "Button",
    "label": "Logout"
   },
   {
-   "fieldname": "column_break_hocf",
-   "fieldtype": "Column Break"
+   "default": "ERP",
+   "fieldname": "tasks_naming_series",
+   "fieldtype": "Data",
+   "label": "Tasks Naming Series",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-01-16 21:37:21.828594",
+ "modified": "2024-01-17 21:29:22.939029",
  "modified_by": "Administrator",
  "module": "Github Sync",
  "name": "Github Connection",

@@ -23,8 +23,11 @@ frappe.ui.form.on("Github Connection", {
       });
 
       if (!response.ok) {
-        frappe.set_cookie("github_access_token", null);
-        frappe.msgprint("Invalid access token. Please login again.");
+        frappe.msgprint(
+          _("Invalid access token. Please login again."),
+          "Error",
+          "red"
+        );
         return;
       }
       const repos = await response.json();
@@ -48,9 +51,23 @@ frappe.ui.form.on("Github Connection", {
     const CLIENT_ID = response.message;
     const REDIRECT_URI =
       "http://localhost:8000/api/method/github_sync.github_sync.api.callback";
+    const SCOPES = "repo";
     window.open(
-      `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}`,
+      `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${encodeURIComponent(
+        SCOPES
+      )}`,
       "_self"
     );
+  },
+  before_save: function (frm) {
+    frm.set_value(
+      "github_access_token",
+      frappe.get_cookie("github_access_token")
+    );
+  },
+  github_logout() {
+    frappe.call({
+      method: "github_sync.github_sync.api.github_logout",
+    });
   },
 });
