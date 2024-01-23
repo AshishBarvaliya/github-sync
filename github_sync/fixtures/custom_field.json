@@ -1,0 +1,37 @@
+[
+    {
+        "doctype": "Custom Field",
+        "dt": "Task",
+        "module": "Github Sync",
+        "name": "github_sync_with_github",
+        "fieldname": "github_sync_with_github",
+        "fieldtype": "Check",
+        "label": "With Github",
+        "insert_after": "is_template",
+        "depends_on": "eval:doc.project",
+        "default": 0
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Task",
+        "module": "Github Sync",
+        "name": "github_sync_issue_index",
+        "fieldname": "github_sync_issue_index",
+        "fieldtype": "Int",
+        "label": "Github Sync Issue Index",
+        "default": 0,
+        "hidden": 1,
+        "read_only": 1
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Task",
+        "module": "Github Sync",
+        "name": "github_sync_issue_url",
+        "fieldname": "github_sync_issue_url",
+        "fieldtype": "Data",
+        "label": "Github Sync Issue Url",
+        "hidden": 1,
+        "read_only": 1
+    }
+]

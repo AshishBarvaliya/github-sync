@@ -16,27 +16,30 @@ frappe.ui.form.on("Github Connection", {
   async onload(frm) {
     const access_token = frappe.get_cookie("github_access_token");
     if (access_token) {
+      const headers = {
+        Authorization: `token ${access_token}`,
+      };
       const response = await fetch("https://api.github.com/user/repos", {
-        headers: {
-          Authorization: `token ${access_token}`,
-        },
+        headers,
       });
-
       if (!response.ok) {
-        frappe.msgprint(
-          _("Invalid access token. Please login again."),
-          "Error",
-          "red"
-        );
+        frappe.msgprint({
+          title: __("Error"),
+          message: __("Invalid access token. Please login again."),
+          indicator: "red",
+        });
         return;
       }
+      const userResponse = await fetch("https://api.github.com/user", {
+        headers,
+      });
+      const userData = await userResponse.json();
       const repos = await response.json();
-      console.log(repos);
       if (repos.length < 0) {
         frappe.msgprint("No repositories found");
         return;
       }
-      frm.set_value("github_user", repos[0].owner.login);
+      frm.set_value("github_user", userData.login);
       const options = repos.map((repo) => repo.name);
       frm.set_df_property("repository", "options", options);
       frm.refresh_field("repository");
