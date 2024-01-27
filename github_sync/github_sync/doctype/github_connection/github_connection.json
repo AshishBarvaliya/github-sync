@@ -78,6 +78,20 @@
             "fieldtype": "Data",
             "label": "Tasks Naming Series",
             "reqd": 1
+        },
+        {
+            "fieldname": "github_webhook_id",
+            "fieldtype": "Data",
+            "hidden": 1,
+            "read_only": 1,
+            "reqd": 1
+        },
+        {
+            "fieldname": "github_webhook_secret",
+            "fieldtype": "Data",
+            "hidden": 1,
+            "read_only": 1,
+            "reqd": 1
         }
     ],
     "index_web_pages_for_search": 1,

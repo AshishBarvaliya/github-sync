@@ -130,6 +130,8 @@ app_license = "mit"
 #	}
 # }
 
+doctype_js = {"Task" : "public/js/task.js"}
+
 doc_events = {
 	"Task": {
 		"validate": "github_sync.github_sync.api.task.validate",

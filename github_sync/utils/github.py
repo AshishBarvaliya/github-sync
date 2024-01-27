@@ -67,3 +67,14 @@ def update_github_issue(doc, connection):
     response = requests.post(url, headers=headers, data=json.dumps(data))
     if not response.ok:
         frappe.throw(_("Error updating issue: " + response.text), title="Error")
+
+def delete_github_webhook(webhook_id, repo, user, access_token):
+    url = f"https://api.github.com/repos/{user}/{repo}/hooks/{webhook_id}"
+    headers = {
+        'Authorization': f'token {access_token}',
+        'Accept': 'application/vnd.github+json',
+        "X-GitHub-Api-Version": "2022-11-28"
+    }
+    response = requests.delete(url, headers=headers)
+    if not response.ok:
+        frappe.throw(_("Error deleting webhook: " + response.text), title="Error")

@@ -8,8 +8,8 @@
         "fieldtype": "Check",
         "label": "With Github",
         "insert_after": "is_template",
-        "depends_on": "eval:doc.project",
-        "default": 0
+        "default": 0,
+        "hidden": 1
     },
     {
         "doctype": "Custom Field",
