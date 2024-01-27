@@ -132,9 +132,8 @@ app_license = "mit"
 
 doc_events = {
 	"Task": {
-		# "on_update": "github_sync.github_sync.api.create_issue",
-		"before_insert": "github_sync.github_sync.api.before_insert_task",
-		"after_insert": "github_sync.github_sync.api.after_insert_task"
+		"validate": "github_sync.github_sync.api.task.validate",
+		"on_update": "github_sync.github_sync.api.task.on_update"
 	}
 }
 

@@ -27,10 +27,32 @@
         "doctype": "Custom Field",
         "dt": "Task",
         "module": "Github Sync",
-        "name": "github_sync_issue_url",
-        "fieldname": "github_sync_issue_url",
+        "name": "github_sync_github_user",
+        "fieldname": "github_sync_github_user",
         "fieldtype": "Data",
-        "label": "Github Sync Issue Url",
+        "label": "Github Sync Github User",
+        "hidden": 1,
+        "read_only": 1
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Task",
+        "module": "Github Sync",
+        "name": "github_sync_github_repo",
+        "fieldname": "github_sync_github_repo",
+        "fieldtype": "Data",
+        "label": "Github Sync Github Repo",
+        "hidden": 1,
+        "read_only": 1
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Task",
+        "module": "Github Sync",
+        "name": "github_sync_github_issue_number",
+        "fieldname": "github_sync_github_issue_number",
+        "fieldtype": "Int",
+        "label": "Github Sync Github Issue Number",
         "hidden": 1,
         "read_only": 1
     }
