@@ -50,9 +50,11 @@ def webhook():
         return "Invalid signature", 403
 
     event = frappe.request.headers.get("X-GitHub-Event")
+    allowed_user = data.get("issue", {}).get("author_association") in ["OWNER", "COLLABORATOR", "MEMBER"]
 
     if event == "issue_comment":
         handle_issue_comment_webhook(data, connection)
-    elif event == "issues":
+    elif event == "issues" and allowed_user:
         handle_issue_webhook(data, connection)
-    return "Webhook processed successfully"
+    else:
+        return "Event not allowed", 403

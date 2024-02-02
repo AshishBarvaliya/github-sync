@@ -86,7 +86,7 @@ frappe.ui.form.on("Github Connection", {
       const webhookData = {
         name: "web",
         active: true,
-        events: ["issues", "issue_comment", "label"],
+        events: ["issues", "issue_comment"],
         config: {
           url: `${window.location.origin}/api/method/github_sync.github_sync.api.webhook`,
           content_type: "json",

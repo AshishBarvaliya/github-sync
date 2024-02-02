@@ -94,17 +94,26 @@ def handle_issue_comment_webhook(data, connection):
             if task:
                 task.add_comment("Comment", text=comment)
                 task.save(ignore_permissions=True)
+    except Exception as e:
+        return "Error handling issue comment webhook: " + str(e)
     finally:
         frappe.set_user(original_user)
 
 def handle_issue_webhook(data, connection):
     action = data.get("action")
     issue_number = data.get("issue").get("number")
+    labels = [label['name'] for label in data.get('issue').get('labels', [])]
     original_user = frappe.session.user
     frappe.set_user(admin)
 
     try:
-        if action == "opened":
+        task = frappe.db.exists("Task", {"github_sync_github_issue_number": issue_number, "project": connection.project, "github_sync_with_github": 1})
+        if task and not action == "opened":
+            task = frappe.get_doc("Task", {"github_sync_github_issue_number": issue_number, "project": connection.project, "github_sync_with_github": 1})
+            task.description = data.get("issue").get("body")
+            task.subject = data.get("issue").get("title")
+            task.save(ignore_permissions=True)
+        elif action == "opened" or (action in ["labeled", "unlabeled"] and "erpnext" in labels):
             last_task = frappe.get_last_doc("Task", {"github_sync_with_github": 1, "project": connection.project})
             subject = data.get("issue").get("title")
             github_sync_issue_index = last_task.github_sync_issue_index + 1 if last_task else 1
@@ -120,11 +129,7 @@ def handle_issue_webhook(data, connection):
                 "github_sync_github_user": connection.github_user,
             })
             task.save(ignore_permissions=True)
-        elif action == "edited":
-            task = frappe.get_doc("Task", {"github_sync_github_issue_number": issue_number, "project": connection.project, "github_sync_with_github": 1})
-            if task:
-                task.description = data.get("issue").get("body")
-                task.subject = data.get("issue").get("title")
-                task.save(ignore_permissions=True)
+    except Exception as e:
+        return "Error handling issue webhook: " + str(e)
     finally:
         frappe.set_user(original_user)
