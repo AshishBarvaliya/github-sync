@@ -5,6 +5,9 @@ from frappe import _
 import html2text
 from bs4 import BeautifulSoup
 
+github_user="githubuser@example.com"
+admin="Administrator"
+
 # def convert_html_to_markdown(html):
 #     soup = BeautifulSoup(html, 'html.parser')
 
@@ -38,7 +41,7 @@ def create_github_issue(doc, connection):
     }
     data = {
         'title': doc.subject,
-        'body': doc.description
+        'body': doc.description if doc.description else "",
         # 'body': convert_html_to_markdown(doc.description)
     }
     response = requests.post(url, headers=headers, data=json.dumps(data))
@@ -48,6 +51,7 @@ def create_github_issue(doc, connection):
         doc.github_sync_github_user = connection.github_user
         doc.github_sync_github_repo = connection.repository
         doc.github_sync_github_issue_number = issue_number
+        doc.save(ignore_permissions=True)
     else:
         frappe.throw(_("Error creating issue: " + response.text), title="Error")
 
@@ -61,7 +65,7 @@ def update_github_issue(doc, connection):
     }
     data = {
         'title': doc.subject,
-        'body': doc.description
+        'body': doc.description if doc.description else "",
         # 'body': convert_html_to_markdown(doc.description)
     }
     response = requests.post(url, headers=headers, data=json.dumps(data))
@@ -76,5 +80,51 @@ def delete_github_webhook(webhook_id, repo, user, access_token):
         "X-GitHub-Api-Version": "2022-11-28"
     }
     response = requests.delete(url, headers=headers)
-    if not response.ok:
-        frappe.throw(_("Error deleting webhook: " + response.text), title="Error")
+
+def handle_issue_comment_webhook(data, connection):
+    comment = data.get("comment").get("body")
+    action = data.get("action")
+    issue_number = data.get("issue").get("number")
+    original_user = frappe.session.user
+    frappe.set_user(github_user)
+
+    try:
+        if action == "created":
+            task = frappe.get_doc("Task", {"github_sync_github_issue_number": issue_number, "project": connection.project, "github_sync_with_github": 1})
+            if task:
+                task.add_comment("Comment", text=comment)
+                task.save(ignore_permissions=True)
+    finally:
+        frappe.set_user(original_user)
+
+def handle_issue_webhook(data, connection):
+    action = data.get("action")
+    issue_number = data.get("issue").get("number")
+    original_user = frappe.session.user
+    frappe.set_user(admin)
+
+    try:
+        if action == "opened":
+            last_task = frappe.get_last_doc("Task", {"github_sync_with_github": 1, "project": connection.project})
+            subject = data.get("issue").get("title")
+            github_sync_issue_index = last_task.github_sync_issue_index + 1 if last_task else 1
+            task = frappe.get_doc({ 
+                "doctype": "Task",
+                "subject": f"[{connection.tasks_naming_series}-{github_sync_issue_index}] {subject}",
+                "description": data.get("issue").get("body"),
+                "project": connection.project,
+                "github_sync_github_issue_number": issue_number,
+                "github_sync_with_github": 1,
+                "github_sync_issue_index": github_sync_issue_index,
+                "github_sync_github_repo": connection.repository,
+                "github_sync_github_user": connection.github_user,
+            })
+            task.save(ignore_permissions=True)
+        elif action == "edited":
+            task = frappe.get_doc("Task", {"github_sync_github_issue_number": issue_number, "project": connection.project, "github_sync_with_github": 1})
+            if task:
+                task.description = data.get("issue").get("body")
+                task.subject = data.get("issue").get("title")
+                task.save(ignore_permissions=True)
+    finally:
+        frappe.set_user(original_user)

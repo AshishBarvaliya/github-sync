@@ -1,4 +1,18 @@
 frappe.ui.form.on("Task", {
+  onload(frm) {
+    if (frm.doc.project) {
+      frappe.db.get_value(
+        "Github Connection",
+        { project: frm.doc.project },
+        ["repository"],
+        (r) => {
+          if (r && r.repository) {
+            frm.set_df_property("github_sync_with_github", "hidden", 0);
+          }
+        }
+      );
+    }
+  },
   project(frm) {
     if (frm.doc.project) {
       frappe.db.get_value(

@@ -134,7 +134,6 @@ doctype_js = {"Task" : "public/js/task.js"}
 
 doc_events = {
 	"Task": {
-		"validate": "github_sync.github_sync.api.task.validate",
 		"on_update": "github_sync.github_sync.api.task.on_update"
 	}
 }

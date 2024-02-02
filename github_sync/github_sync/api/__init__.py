@@ -2,6 +2,7 @@ import frappe
 import json
 from frappe import _
 from github_sync.utils import verify_signature
+from github_sync.utils.github import handle_issue_comment_webhook, handle_issue_webhook
 import requests
 
 @frappe.whitelist(methods=["GET"], allow_guest=True)
@@ -38,14 +39,20 @@ def webhook():
     user = data.get("repository", {}).get("owner", {}).get("login", "")
     x_hub_signature = frappe.request.headers.get('X-Hub-Signature')
     
-    secret = frappe.db.get_value("Github Connection", {"repository": repo, "github_user": user}, "github_webhook_secret")
+    connection = frappe.db.get_value("Github Connection", {"repository": repo, "github_user": user}, ["github_webhook_secret", "project", "tasks_naming_series", "repository", "github_user"], as_dict=1)
 
-    if not secret:
+    if not connection:
         frappe.log_error("Github Webhook Secret Not Found", "Webhook Error")
         return "Github Webhook Secret Not Found", 403
     
-    if not verify_signature(raw_data, x_hub_signature, secret):
+    if not verify_signature(raw_data, x_hub_signature, secret=connection.github_webhook_secret):
         frappe.log_error("Signature verification failed", "Webhook Error")
         return "Invalid signature", 403
 
+    event = frappe.request.headers.get("X-GitHub-Event")
+
+    if event == "issue_comment":
+        handle_issue_comment_webhook(data, connection)
+    elif event == "issues":
+        handle_issue_webhook(data, connection)
     return "Webhook processed successfully"
