@@ -2,35 +2,9 @@ import frappe
 import requests
 import json
 from frappe import _
-import html2text
-from bs4 import BeautifulSoup
 
 github_user="githubuser@example.com"
 admin="Administrator"
-
-# def convert_html_to_markdown(html):
-#     soup = BeautifulSoup(html, 'html.parser')
-
-#     # Handling checkboxes
-#     for li in soup.find_all('li'):
-#         if li.get('data-list') == 'unchecked':
-#             markdown_checkbox = "- [ ] " + ''.join(map(str, li.contents))
-#             li.replace_with(markdown_checkbox)
-#         elif li.get('data-list') == 'checked':
-#             markdown_checkbox = "- [x] " + ''.join(map(str, li.contents))
-#             li.replace_with(markdown_checkbox)
-
-#     # Convert the updated HTML to Markdown
-#     converter = html2text.HTML2Text()
-#     converter.ignore_links = False
-#     converter.ignore_emphasis = False
-#     converter.ignore_images = True
-#     converter.ignore_anchors = False
-#     converter.bypass_tables = False
-#     converter.strong_mark = '**'
-#     converter.emphasis_mark = '*'
-#     markdown = converter.handle(str(soup))
-#     return markdown
 
 def create_github_issue(doc, connection):
     url = f"https://api.github.com/repos/{connection.github_user}/{connection.repository}/issues"
@@ -42,7 +16,6 @@ def create_github_issue(doc, connection):
     data = {
         'title': doc.subject,
         'body': doc.description if doc.description else "",
-        # 'body': convert_html_to_markdown(doc.description)
     }
     response = requests.post(url, headers=headers, data=json.dumps(data))
 
@@ -66,7 +39,6 @@ def update_github_issue(doc, connection):
     data = {
         'title': doc.subject,
         'body': doc.description if doc.description else "",
-        # 'body': convert_html_to_markdown(doc.description)
     }
     response = requests.post(url, headers=headers, data=json.dumps(data))
     if not response.ok:
