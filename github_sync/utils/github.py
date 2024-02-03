@@ -15,7 +15,7 @@ def create_github_issue(doc, connection):
     }
     data = {
         'title': doc.subject,
-        'body': doc.description if doc.description else "",
+        'body': doc.github_sync_github_description if doc.github_sync_github_description else "",
     }
     response = requests.post(url, headers=headers, data=json.dumps(data))
 
@@ -38,7 +38,7 @@ def update_github_issue(doc, connection):
     }
     data = {
         'title': doc.subject,
-        'body': doc.description if doc.description else "",
+        'body': doc.github_sync_github_description if doc.github_sync_github_description else "",
     }
     response = requests.post(url, headers=headers, data=json.dumps(data))
     if not response.ok:

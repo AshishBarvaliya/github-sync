@@ -55,5 +55,17 @@
         "label": "Github Sync Github Issue Number",
         "hidden": 1,
         "read_only": 1
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Task",
+        "module": "Github Sync",
+        "name": "github_sync_github_description",
+        "fieldname": "github_sync_github_description",
+        "fieldtype": "Long Text",
+        "label": "Github Sync Github Description",
+        "default": "",
+        "hidden": 1,
+        "read_only": 1
     }
 ]
