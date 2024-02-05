@@ -2,9 +2,68 @@ import frappe
 import requests
 import json
 from frappe import _
+import markdown
+from bs4 import BeautifulSoup
+from markdown.extensions import Extension
+from markdown.preprocessors import Preprocessor
+import re
 
 github_user="githubuser@example.com"
 admin="Administrator"
+
+class EnhancedMarkdownExtension(Extension):
+    def extendMarkdown(self, md):
+        md.preprocessors.register(EnhancedMarkdownPreprocessor(md), 'enhanced_markdown_preprocessor', 175)
+
+class EnhancedMarkdownPreprocessor(Preprocessor):
+    def run(self, lines):
+        new_lines = []
+        in_code_block = False
+        code_block_lines = []
+        code_block_language = None
+
+        for line in lines:
+            # Handle code blocks
+            if line.startswith('```'):
+                if in_code_block:
+                    # Ending a code block
+                    pre_tag = '<pre class="ql-code-block-container" spellcheck="false"'
+                    if code_block_language:
+                        pre_tag += f' data-language="{code_block_language}"'
+                    pre_tag += '>'
+                    new_lines.append(pre_tag + '\n'.join(code_block_lines) + '</pre>')
+                    in_code_block = False
+                    code_block_lines = []
+                    code_block_language = None
+                else:
+                    in_code_block = True
+                    code_block_language = line.strip('```').strip()
+                    continue
+            elif in_code_block:
+                code_block_lines.append(f'<div class="ql-code-block">{line}</div>')
+                continue
+
+            elif re.match(r'^#[^ ]', line):
+                content = line.lstrip('#').strip()
+                new_line = f'<p><a href="http://google.com" rel="noopener noreferrer">{content}</a></p>'
+                new_lines.append(new_line)
+
+            # Handle task lists
+            elif re.match(r'- \[ \] .+', line):
+                line = f'<li data-list="unchecked"><span class="ql-ui" contenteditable="false"></span>{line[5:]}</li>'
+            elif re.match(r'- \[x\] .+', line) or re.match(r'- \[X\] .+', line):
+                line = f'<li data-list="checked"><span class="ql-ui" contenteditable="false"></span>{line[5:]}</li>'
+
+            else:
+                new_lines.append(line + '  ')
+
+        return new_lines
+
+def markdown_to_html(md_text):
+    md_text = re.sub(r'(\n\s*\n)', r'\n\n<br>\n\n', md_text)  # Handle paragraphs with breaks
+    md = markdown.Markdown(extensions=[EnhancedMarkdownExtension(), 'markdown.extensions.extra'])
+    html = md.convert(md_text)
+    return html
 
 def create_github_issue(doc, connection):
     url = f"https://api.github.com/repos/{connection.github_user}/{connection.repository}/issues"
@@ -78,11 +137,18 @@ def handle_issue_webhook(data, connection):
     original_user = frappe.session.user
     frappe.set_user(admin)
 
+    html = markdown_to_html(data.get("issue").get("body"))
+
+    soup = BeautifulSoup(html, 'html.parser')
+    ql_editor_html = BeautifulSoup('<div class="ql-editor read-mode"></div>', 'html.parser').div
+    ql_editor_html.append(soup)
+
     try:
         task = frappe.db.exists("Task", {"github_sync_github_issue_number": issue_number, "project": connection.project, "github_sync_with_github": 1})
         if task and not action == "opened":
             task = frappe.get_doc("Task", {"github_sync_github_issue_number": issue_number, "project": connection.project, "github_sync_with_github": 1})
-            task.description = data.get("issue").get("body")
+            task.description = str(ql_editor_html)
+            task.github_sync_github_description = data.get("issue").get("body")
             task.subject = data.get("issue").get("title")
             task.save(ignore_permissions=True)
         elif action == "opened" or (action in ["labeled", "unlabeled"] and "erpnext" in labels):
@@ -92,7 +158,8 @@ def handle_issue_webhook(data, connection):
             task = frappe.get_doc({ 
                 "doctype": "Task",
                 "subject": f"[{connection.tasks_naming_series}-{github_sync_issue_index}] {subject}",
-                "description": data.get("issue").get("body"),
+                "description": str(ql_editor_html),
+                "github_sync_github_description": data.get("issue").get("body"),
                 "project": connection.project,
                 "github_sync_github_issue_number": issue_number,
                 "github_sync_with_github": 1,

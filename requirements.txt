@@ -1,2 +1,4 @@
 hashlib
 hmac
+markdown==3.5.2
+beautifulsoup4==4.12.2
