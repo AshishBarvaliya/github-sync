@@ -1,7 +1,5 @@
 import frappe
 from frappe import _
-import requests
-import json
 from github_sync.utils.github import create_github_issue, update_github_issue 
 
 @frappe.whitelist()

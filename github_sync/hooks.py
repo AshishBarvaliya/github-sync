@@ -68,7 +68,7 @@ app_license = "mit"
 # ------------
 
 # before_install = "github_sync.install.before_install"
-# after_install = "github_sync.install.after_install"
+after_install = "github_sync.install.after_install"
 
 # Uninstallation
 # ------------

@@ -12,6 +12,19 @@ frappe.ui.form.on("Task", {
         }
       );
     }
+    if (
+      frm.doc.github_sync_with_github &&
+      frm.doc.github_sync_github_issue_number &&
+      frm.doc.github_sync_github_repo &&
+      frm.doc.github_sync_github_user
+    ) {
+      frm.add_custom_button("Open Github Issue", function () {
+        window.open(
+          `https://github.com/${frm.doc.github_sync_github_user}/${frm.doc.github_sync_github_repo}/issues/${frm.doc.github_sync_github_issue_number}`,
+          "_blank"
+        );
+      });
+    }
   },
   project(frm) {
     if (frm.doc.project) {
